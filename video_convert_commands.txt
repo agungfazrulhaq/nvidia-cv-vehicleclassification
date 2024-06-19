@@ -1,0 +1,5 @@
+#compressed mp4 output video
+ffmpeg -i output3.mp4 -c:v libx264 -crf 23 -preset medium -c:a aac -b:a 128k output_compressed.mp4
+
+#convert mp4 to h264
+ffmpeg -i videoplayback1800_1850.mp4 -c:v copy vid1800_1850.264
