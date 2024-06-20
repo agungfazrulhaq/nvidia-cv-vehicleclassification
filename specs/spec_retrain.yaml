@@ -1,0 +1,57 @@
+results_dir: '/workspace/tao-experiments/example/tao_voc/output/retrain/'
+dataset:
+  num_classes: 17
+  train_dataset_path: "/workspace/tao-experiments/data/train_split/train"
+  val_dataset_path: "/workspace/tao-experiments/data/train_split/val"
+  preprocess_mode: 'torch'
+  augmentation:
+    enable_color_augmentation: True
+    enable_center_crop: True
+train:
+  qat: False
+  checkpoint: '/workspace/tao-experiments/example/tao_voc/output/prune/model_th=0.68_eq=union.tlt'
+  batch_size_per_gpu: 64
+  num_epochs: 80
+  optim_config:
+    optimizer: 'sgd'
+  lr_config:
+    scheduler: 'cosine'
+    learning_rate: 0.05
+    soft_start: 0.05
+  reg_config:
+    type: 'L2'
+    scope: ['conv2d', 'dense']
+    weight_decay: 0.00005
+model:
+  backbone: 'efficientnet-b0'
+  input_width: 256
+  input_height: 256
+  input_channels: 3
+  input_image_depth: 8
+evaluate:
+  dataset_path: '/workspace/tao-experiments/data/train_split/test'
+  checkpoint: '/workspace/tao-experiments/example/tao_voc/output/retrain/train/efficientnet-b0_080.tlt'
+  trt_engine: '/efficientnet-b0.fp32.engine'
+  top_k: 3
+  batch_size: 16
+  n_workers: 8
+inference:
+  checkpoint: '/workspace/tao-experiments/example/tao_voc/output/retrain/train/efficientnet-b0_080.tlt'
+  trt_engine: '/workspace/tao-experiments/example/tao_voc/output/retrain/train/efficientnet-b0.fp32.engine'
+  image_dir: '/workspace/tao-experiments/data/test/testset'
+  classmap: '/workspace/tao-experiments/example/tao_voc/output/retrain/train/classmap.json'
+export:
+  checkpoint: '/workspace/tao-experiments/example/tao_voc/output/retrain/train/efficientnet-b0_080.tlt'
+  onnx_file: '/workspace/tao-experiments/example/tao_voc/output/retrain/train/efficientnet-b0.onnx'
+gen_trt_engine:
+  onnx_file: '/workspace/tao-experiments/example/tao_voc/output/retrain/train/efficientnet-b0.onnx'
+  trt_engine: '/workspace/tao-experiments/example/tao_voc/output/retrain/train/efficientnet-b0.int8.engine'
+  tensorrt:
+    data_type: "int8"
+    max_workspace_size: 4
+    max_batch_size: 16
+    calibration:
+      cal_image_dir: '/workspace/tao-experiments/data/train_split/test'
+      cal_data_file: '/workspace/tao-experiments/example/tao_voc/output/retrain/train/calib.tensorfile'
+      cal_cache_file: '/workspace/tao-experiments/example/tao_voc/output/retrain/train/cal.bin'
+      cal_batches: 10
